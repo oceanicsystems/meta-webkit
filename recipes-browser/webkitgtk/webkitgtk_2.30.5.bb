@@ -13,7 +13,7 @@ DEPENDS = "zlib libsoup-2.4 curl libxml2 cairo libxslt libidn gnutls \
            sqlite3 libgcrypt"
 
 SRC_URI = "https://www.webkitgtk.org/releases/webkitgtk-${PV}.tar.xz"
-SRC_URI[sha256sum] = "821952e8c9303ed752f1fb1d4283f612c25249d00d705d2b79c2db1bc49c9464"
+SRC_URI[sha256sum] = "7d0dab08e3c5ae07bec80b2822ef42e952765d5724cac86eb23999bfed5a7f1f"
 
 RRECOMMENDS_${PN} = "${PN}-bin \
                      ca-certificates \
@@ -25,12 +25,7 @@ RRECOMMENDS_${PN}-bin = "adwaita-icon-theme librsvg-gtk"
 
 inherit cmake lib_package pkgconfig perlnative python3native
 
-# distro_features_check is going to be removed after dunfell
-# ref: https://git.yoctoproject.org/cgit/cgit.cgi/poky/commit/meta/classes/features_check.bbclass?h=master-next&id=9702544b3e75d761d86cae7e8b36f3f2625b68ce
-#   Temporarily support the old class name with a warning about future deprecation.
-inherit ${@bb.utils.contains_any("LAYERSERIES_CORENAMES", 'zeus warrior thud sumo', 'distro_features_check', 'features_check', d)}
-
-S = "${WORKDIR}/webkitgtk-${PV}/"
+S = "${WORKDIR}/webkitgtk-${PV}"
 
 # To build with embedded gl support -> Enable *both* "opengl" and "gles2" option
 # To build with desktop  gl support -> Enable "opengl", but disable "gles2" option

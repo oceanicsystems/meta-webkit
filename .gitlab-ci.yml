@@ -1,51 +1,75 @@
-before_script:
-  - mkdir -p ~/yocto-webkit
-  - cd ~/yocto-webkit
-  - ulimit -n 4096
-  - repo init -u $CI_REPOSITORY_URL -m $MANIFEST -b $CI_COMMIT_SHA
-  - repo sync --force-sync
-  - pushd sources/meta-webkit
-  - git remote remove tmp || true
-  - git remote add tmp $CI_REPOSITORY_URL
-  - git fetch tmp
-  - git checkout $CI_COMMIT_SHA
-  - popd
-  - source sources/meta-webkit/.gitlab-ci/scripts/setup-environment $SOURCE
-  - rm -rf tmp
-
-dunfell-raspberrypi3-mesa-weston-wpe-2.26:
+.raspberrypi3-mesa-weston-wpe:
+  before_script:
+    - |
+      echo "Environment:"
+      echo "======================================================================"
+      echo "CI_REPOSITORY_URL=\"$CI_REPOSITORY_URL\""
+      echo "CI_COMMIT_SHA=\"$CI_COMMIT_SHA\""
+      echo "MANIFEST=\"$MANIFEST\""
+      echo "SOURCE=\"$SOURCE\""
+      echo "BITBAKE_TARGET=\"$BITBAKE_TARGET\""
+      echo "======================================================================"
+    - |
+      mkdir -p ~/yocto-webkit
+      cd ~/yocto-webkit
+      ulimit -n 4096
+      rm -rf sources .repo
+    - repo init -u $CI_REPOSITORY_URL -m $MANIFEST -b $CI_COMMIT_SHA
+    - repo sync --force-sync
+    - pushd sources/meta-webkit
+    - git remote remove tmp || true
+    - git remote add tmp $CI_REPOSITORY_URL
+    - git fetch tmp
+    - git checkout $CI_COMMIT_SHA
+    - popd
+    - source sources/meta-webkit/.gitlab-ci/scripts/setup-environment $SOURCE
+    - rm -rf tmp
   tags:
     - meta-webkit
   variables:
-    MANIFEST: .gitlab-ci/manifest/manifest-dunfell.xml
     # setup-environment targetname machine distro bblayers presets
-    SOURCE: raspberrypi3-mesa-wpe-2.26 raspberrypi3-mesa poky raspberrypi mesa-wpe-2_26
+    # SOURCE: raspberrypi3-mesa-wpe-2.28 raspberrypi3-mesa poky raspberrypi mesa-wpe-2_28
+    # MANIFEST: .gitlab-ci/manifest/manifest-gatesgarth.xml
     BITBAKE_TARGET: wpewebkit
   script:
     - bitbake $BITBAKE_TARGET
     - rm -rf tmp
 
-dunfell-raspberrypi3-mesa-weston-wpe-2.28:
-  tags:
-    - meta-webkit
-  variables:
-    MANIFEST: .gitlab-ci/manifest/manifest-dunfell.xml
-    # setup-environment targetname machine distro bblayers presets
-    SOURCE: raspberrypi3-mesa-wpe-2.28 raspberrypi3-mesa poky raspberrypi mesa-wpe-2_28
-    BITBAKE_TARGET: wpewebkit
-  script:
-    - bitbake $BITBAKE_TARGET
-    - rm -rf tmp
-
-dunfell-raspberrypi3-mesa-weston-wpe-qt:
+gatesgarth-raspberrypi3-mesa-weston-wpe-qt:
+  extends:
+    - .raspberrypi3-mesa-weston-wpe
   allow_failure: true
-  tags:
-    - meta-webkit
+  variables:
+    MANIFEST: .gitlab-ci/manifest/manifest-gatesgarth.xml
+    SOURCE: raspberrypi3-mesa-wpe-qt raspberrypi3-mesa poky qt5 mesa-wpe-qt
+
+gatesgarth-raspberrypi3-mesa-weston-wpe-2.28:
+  extends:
+    - .raspberrypi3-mesa-weston-wpe
+  variables:
+    MANIFEST: .gitlab-ci/manifest/manifest-gatesgarth.xml
+    SOURCE: raspberrypi3-mesa-wpe-2.28 raspberrypi3-mesa poky raspberrypi mesa-wpe-2_28
+
+gatesgarth-raspberrypi3-mesa-weston-wpe-2.30:
+  extends:
+    - .raspberrypi3-mesa-weston-wpe
+  variables:
+    MANIFEST: .gitlab-ci/manifest/manifest-gatesgarth.xml
+    SOURCE: raspberrypi3-mesa-wpe-2.30 raspberrypi3-mesa poky raspberrypi mesa-wpe-2_30
+
+dunfell-raspberrypi3-mesa-weston-wpe-2.30:
+  extends:
+    - .raspberrypi3-mesa-weston-wpe
+  allow_failure: true
   variables:
     MANIFEST: .gitlab-ci/manifest/manifest-dunfell.xml
-    # setup-environment targetname machine distro bblayers presets
-    SOURCE: raspberrypi3-mesa-wpe-qt raspberrypi3-mesa poky qt5 mesa-wpe-qt
-    BITBAKE_TARGET: wpewebkit
-  script:
-    - bitbake $BITBAKE_TARGET
-    - rm -rf tmp
+    SOURCE: raspberrypi3-mesa-wpe-2.30 raspberrypi3-mesa poky raspberrypi mesa-wpe-2_30
+
+zeus-raspberrypi3-mesa-weston-wpe-2.30:
+  extends:
+    - .raspberrypi3-mesa-weston-wpe
+  allow_failure: true
+  variables:
+    MANIFEST: .gitlab-ci/manifest/manifest-zeus.xml
+    SOURCE: raspberrypi3-mesa-wpe-2.30 raspberrypi3-mesa poky raspberrypi mesa-wpe-2_30
+
